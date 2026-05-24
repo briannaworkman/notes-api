@@ -3,7 +3,13 @@ const router = express.Router();
 const store = require('../store');
 
 router.get('/', (req, res) => {
-  res.json(store.getAllNotes());
+  const page = parseInt(req.query.page) || 1;
+  const limit = parseInt(req.query.limit) || 10;
+  const notes = store.getAllNotes();
+  const total = notes.length;
+  const start = (page - 1) * limit;
+  const paged = notes.slice(start, start + limit);
+  res.json({ notes: paged, total, page, limit });
 });
 
 router.post('/', (req, res) => {
