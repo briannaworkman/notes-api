@@ -21,13 +21,31 @@ describe('POST /notes', () => {
 });
 
 describe('GET /notes', () => {
-  it('returns all notes as an array', async () => {
+  it('returns notes with default pagination shape', async () => {
     await request(app).post('/notes').send({ title: 'Note 1', content: 'a' });
     await request(app).post('/notes').send({ title: 'Note 2', content: 'b' });
     const res = await request(app).get('/notes');
     expect(res.status).toBe(200);
-    expect(Array.isArray(res.body)).toBe(true);
-    expect(res.body).toHaveLength(2);
+    expect(Array.isArray(res.body.notes)).toBe(true);
+    expect(res.body.notes).toHaveLength(2);
+    expect(res.body.total).toBe(2);
+    expect(res.body.page).toBe(1);
+    expect(res.body.limit).toBe(10);
+  });
+
+  it('returns paginated slice with explicit page and limit', async () => {
+    await request(app).post('/notes').send({ title: 'Note 1', content: 'a' });
+    await request(app).post('/notes').send({ title: 'Note 2', content: 'b' });
+    await request(app).post('/notes').send({ title: 'Note 3', content: 'c' });
+    const res = await request(app).get('/notes?page=1&limit=2');
+    expect(res.status).toBe(200);
+    expect(Array.isArray(res.body.notes)).toBe(true);
+    expect(res.body.notes).toHaveLength(2);
+    expect(res.body.total).toBe(3);
+    expect(res.body.page).toBe(1);
+    expect(res.body.limit).toBe(2);
+    expect(res.body.notes[0].title).toBe('Note 1');
+    expect(res.body.notes[1].title).toBe('Note 2');
   });
 });
 
