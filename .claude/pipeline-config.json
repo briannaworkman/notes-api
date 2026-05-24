@@ -1,0 +1,21 @@
+{
+  "repo": "briannaworkman/notes-api",
+  "assignee": "briannaworkman",
+  "label": "claude-ready",
+  "project": {
+    "id": "PVT_kwHOBmQsvM4BYnP0",
+    "status_field_id": "PVTSSF_lAHOBmQsvM4BYnP0zhTr1aQ",
+    "columns": {
+      "ready": "e20bd821",
+      "in_progress": "e23bf0b8",
+      "in_review": "38170e32",
+      "blocked": "60b5de3e"
+    }
+  },
+  "test_loop": {
+    "max_iterations": 3
+  },
+  "review_loop": {
+    "max_iterations": 5
+  }
+}
