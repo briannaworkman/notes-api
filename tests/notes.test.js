@@ -18,6 +18,22 @@ describe('POST /notes', () => {
     expect(res.body.tags).toEqual(['work']);
     expect(res.body.createdAt).toBeDefined();
   });
+
+  it('returns 400 when title is missing', async () => {
+    const res = await request(app)
+      .post('/notes')
+      .send({ content: 'No title here' });
+    expect(res.status).toBe(400);
+    expect(res.body).toEqual({ error: 'title is required' });
+  });
+
+  it('returns 400 when title is an empty string', async () => {
+    const res = await request(app)
+      .post('/notes')
+      .send({ title: '   ', content: 'Whitespace only title' });
+    expect(res.status).toBe(400);
+    expect(res.body).toEqual({ error: 'title is required' });
+  });
 });
 
 describe('GET /notes', () => {
