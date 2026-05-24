@@ -42,6 +42,44 @@ describe('GET /notes/:id', () => {
   });
 });
 
+describe('GET /notes?q=', () => {
+  it('returns only notes matching the search term in title or content', async () => {
+    await request(app).post('/notes').send({ title: 'Team meeting notes', content: 'Discussed Q3 goals' });
+    await request(app).post('/notes').send({ title: 'Grocery list', content: 'Milk, eggs, bread' });
+    await request(app).post('/notes').send({ title: 'Project update', content: 'Prepare for the quarterly meeting' });
+
+    const res = await request(app).get('/notes?q=meeting');
+    expect(res.status).toBe(200);
+    expect(Array.isArray(res.body)).toBe(true);
+    expect(res.body).toHaveLength(2);
+    expect(res.body.map(n => n.title)).toContain('Team meeting notes');
+    expect(res.body.map(n => n.title)).toContain('Project update');
+  });
+
+  it('is case-insensitive (MEETING matches same as meeting)', async () => {
+    await request(app).post('/notes').send({ title: 'Team meeting notes', content: 'Discussed Q3 goals' });
+    await request(app).post('/notes').send({ title: 'Grocery list', content: 'Milk, eggs, bread' });
+    await request(app).post('/notes').send({ title: 'Project update', content: 'Prepare for the quarterly meeting' });
+
+    const lower = await request(app).get('/notes?q=meeting');
+    const upper = await request(app).get('/notes?q=MEETING');
+
+    expect(upper.status).toBe(200);
+    expect(upper.body).toHaveLength(lower.body.length);
+    expect(upper.body.map(n => n.id).sort()).toEqual(lower.body.map(n => n.id).sort());
+  });
+
+  it('returns all notes when no ?q= param is provided', async () => {
+    await request(app).post('/notes').send({ title: 'Note A', content: 'Alpha' });
+    await request(app).post('/notes').send({ title: 'Note B', content: 'Beta' });
+    await request(app).post('/notes').send({ title: 'Note C', content: 'Gamma' });
+
+    const res = await request(app).get('/notes');
+    expect(res.status).toBe(200);
+    expect(res.body).toHaveLength(3);
+  });
+});
+
 describe('DELETE /notes/:id', () => {
   it('removes the note and returns 204', async () => {
     const created = await request(app)

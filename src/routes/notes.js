@@ -3,6 +3,16 @@ const router = express.Router();
 const store = require('../store');
 
 router.get('/', (req, res) => {
+  const { q } = req.query;
+  if (q) {
+    const lower = q.toLowerCase();
+    const filtered = store.getAllNotes().filter(
+      note =>
+        note.title.toLowerCase().includes(lower) ||
+        note.content.toLowerCase().includes(lower)
+    );
+    return res.json(filtered);
+  }
   res.json(store.getAllNotes());
 });
 
