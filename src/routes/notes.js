@@ -8,6 +8,9 @@ router.get('/', (req, res) => {
 
 router.post('/', (req, res) => {
   const { title, content, tags } = req.body;
+  if (!title || title.trim() === '') {
+    return res.status(400).json({ error: 'title is required' });
+  }
   const note = store.createNote({ title, content, tags });
   res.status(201).json(note);
 });
