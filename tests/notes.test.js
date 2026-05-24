@@ -42,6 +42,36 @@ describe('GET /notes/:id', () => {
   });
 });
 
+describe('GET /notes?tag=', () => {
+  it('returns only notes that include the specified tag', async () => {
+    await request(app).post('/notes').send({ title: 'Work note', content: 'a', tags: ['work'] });
+    await request(app).post('/notes').send({ title: 'Personal note', content: 'b', tags: ['personal'] });
+    await request(app).post('/notes').send({ title: 'Work and personal', content: 'c', tags: ['work', 'personal'] });
+    const res = await request(app).get('/notes?tag=work');
+    expect(res.status).toBe(200);
+    expect(Array.isArray(res.body)).toBe(true);
+    expect(res.body).toHaveLength(2);
+    expect(res.body.every(n => n.tags.includes('work'))).toBe(true);
+  });
+
+  it('tag match is case-sensitive', async () => {
+    await request(app).post('/notes').send({ title: 'Work note', content: 'a', tags: ['work'] });
+    await request(app).post('/notes').send({ title: 'Work upper note', content: 'b', tags: ['Work'] });
+    const res = await request(app).get('/notes?tag=work');
+    expect(res.status).toBe(200);
+    expect(res.body).toHaveLength(1);
+    expect(res.body[0].title).toBe('Work note');
+  });
+
+  it('returns all notes when no tag query param is provided', async () => {
+    await request(app).post('/notes').send({ title: 'Note 1', content: 'a', tags: ['work'] });
+    await request(app).post('/notes').send({ title: 'Note 2', content: 'b', tags: ['personal'] });
+    const res = await request(app).get('/notes');
+    expect(res.status).toBe(200);
+    expect(res.body).toHaveLength(2);
+  });
+});
+
 describe('DELETE /notes/:id', () => {
   it('removes the note and returns 204', async () => {
     const created = await request(app)

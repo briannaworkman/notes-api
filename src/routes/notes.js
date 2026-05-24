@@ -3,7 +3,12 @@ const router = express.Router();
 const store = require('../store');
 
 router.get('/', (req, res) => {
-  res.json(store.getAllNotes());
+  const { tag } = req.query;
+  const notes = store.getAllNotes();
+  if (tag) {
+    return res.json(notes.filter(n => Array.isArray(n.tags) && n.tags.includes(tag)));
+  }
+  res.json(notes);
 });
 
 router.post('/', (req, res) => {
